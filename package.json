@@ -1,0 +1,16 @@
+{
+  "name": "teams-chat-accelerator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fuuz to Microsoft Teams: card renderer, post-flow builder, deep links and offline card previews",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test \"teams-shared/test/*.test.cjs\"",
+    "preview": "node teams-shared/preview/render.cjs"
+  },
+  "devDependencies": {
+    "adaptivecards": "3.0.4",
+    "jsonata": "2.0.5",
+    "playwright": "1.49.1"
+  }
+}

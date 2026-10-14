@@ -81,6 +81,7 @@ The Andon reference implementation uses the shorter **direct-send** variant: the
 | [08-operations-limits-troubleshooting.md](08-operations-limits-troubleshooting.md) | Limits, throttling, run history, an error table, rotation |
 | [09-security.md](09-security.md) | Secrets, logging, restricted content, ownership, least privilege |
 | [walkthroughs/](walkthroughs/) | 01 Andon alerts to a work-unit channel (tested reference); 02 notify a channel when a record changes state; 03 DM the assigned user; 04 end-to-end test |
+| [teams-shared/](teams-shared/) | The Fuuz-side code: card renderer, post-flow builder, send step, deep links, node-shape lint, offline card preview, with tests |
 | [templates/](templates/) | Workflow definitions (code view), the payload JSON Schema, card templates, Fuuz settings and model examples |
 
 ## Fastest path (about 1 hour)
