@@ -9,6 +9,7 @@
 | Where the card goes | How the bot gets there | Status |
 |---|---|---|
 | A team the workflow **creates** | Workflow: Graph `POST /teams/{id}/installedApps` after Create a team and a 3-minute wait | **VERIFIED** in production |
+| Posting a card **as Flow bot into a channel** of a team that has the app | Router workflow: Post card, Post as Flow bot, Post in Channel, Team and Channel from the `teamId` and `channelId` variables | **VERIFIED** in production (2026-10-14) |
 | An **existing** team | Workflow: the same call, guarded (check first, or treat 409 as success) | **TO VERIFY** (the call shape is verified; the guard and the response for an already-installed app are not) |
 | A **group chat** | Workflow: Graph install into the chat | **TO VERIFY** (the connector's path rules may not allow it; see section 4) |
 | A **1:1 chat** with the Flow bot | (a) admin pre-install by policy, (b) Graph install for the user, (c) post as a user instead | **TO VERIFY** for all three. Recommendation in section 5 |
@@ -134,14 +135,36 @@ No bot is involved, so nothing has to be installed.
 1. **Create a chat** (Teams connector): Members = `triggerBody()?['fuuz']?['recipient']` (the connection's account is added as the creator), Title optional.
 2. **Post card in a chat or channel**: **Post as: User**, **Post in: Group chat**, Group chat = `body('Create_a_chat')?['id']`, Adaptive Card = `string(triggerBody()?['attachments']?[0]?['content'])`.
 
-**TO VERIFY:** whether "Create a chat" with one other member returns the existing 1:1 chat or creates a new group chat each time (if it creates a new chat each time, store chat ids per recipient and reuse them). Cards appear as sent by the service account, and user-posted actions count against that account's limits.
+**TO VERIFY:** whether "Create a chat" with one other member returns the existing 1:1 chat or creates a new group chat each time (if it creates a new chat each time, store chat ids per recipient and reuse them). Cards appear as sent by the service account, and user-posted actions count against that account's limits. Teams does not notify a person about their own messages, so the account that posts never gets an alert for these cards: use a dedicated service account that nobody relies on for alerts, never a person's own connection (chapter 01, section 6).
 
 ### Recommendation
 
 1. **Use (a)** for DMs: pre-install Workflows for a security group of Fuuz alert recipients. Verify with one never-used account before go-live.
-2. Keep **(c)** as the documented fallback for GCC tenants (where the Flow bot is not supported) and for tenants whose admins will not pre-install apps.
+2. Keep **(c)** only as the documented fallback for GCC tenants (where the Flow bot is not supported) and for tenants whose admins will not pre-install apps.
 3. Use **(b)** only where (a) is refused and a premium licence and a new Graph permission are acceptable.
 
 ## 6. Beyond Workflows: a Fuuz Teams bot (design only)
 
 A registered bot removes the Workflows limits: a real delivery answer (201 with an activity id), cards updated in place, `Action.Execute` buttons that write back to Fuuz, and no 25-per-5-minutes Flow bot cap. It needs a Teams app package, an Azure Bot / Entra registration, an admin install through setup policies, and an inbound endpoint that validates Bot Framework tokens. Fuuz request flows cannot validate RS256 tokens natively today, so this needs a small validating proxy or platform support. The Fuuz side (detectors, queue, renderer) stays the same; only the post flow changes. Not built.
+
+## 7. Branding the poster
+
+The Flow bot's name ("Workflows") and icon belong to Microsoft's Workflows app. They cannot be changed, in the workflow or in the Teams admin center. Options, in order of effort:
+
+| Option | What the reader sees | Effort | Status |
+|---|---|---|---|
+| **(a) Brand the card** | Poster "Workflows"; the card shows your logo header, app and event label, and severity colours (chapter 05, section 2) | None: the kit's renderer already does this | VERIFIED |
+| **(b) Post as a Copilot Studio agent** | Poster with your agent's name and icon | Medium | TO VERIFY |
+| **(c) Your own Teams bot** | Poster with your bot's name and icon, plus real delivery answers and in-place updates | High | Design only (section 6) |
+
+**(b) Microsoft Copilot Studio agent.** "Post card in a chat or channel" offers **Post as: Microsoft Copilot Studio agent**.
+1. In Copilot Studio, build an agent with your product name and icon. It needs no topics for this purpose.
+2. Publish it to the **Microsoft Teams** channel.
+3. Install it wherever cards go: in each team (Graph `POST /teams/{id}/installedApps` with the agent's Teams app id, the same way the Workflows app is installed in section 3), and for DM recipients (the same options as section 5).
+4. In the Post card step, choose **Post as: Microsoft Copilot Studio agent** and select the agent. Re-enter Team, Channel and Adaptive Card afterwards: changing Post as clears them (chapter 02, section 4.7).
+
+**TO VERIFY** before relying on option (b): the licensing the agent and the posting connection need; that the agent's Teams app can be installed in a team through the Teams connector's Graph action as Workflows is; and that recipients, including the connection owner, are notified about its posts as they are for the Flow bot.
+
+**(c) Your own Teams bot.** Register a bot with Azure Bot Service and publish a Teams app manifest with your name and icon. See section 6 for what else that involves (design only, not built).
+
+Options (b) and (c), like the Flow bot, need their app installed in each team or chat they post to. Plan the same install steps (sections 3 to 5) for the new app id, and keep option (a) in place whichever poster you choose.

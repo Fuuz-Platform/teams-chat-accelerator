@@ -226,6 +226,37 @@
   </div>
 </section>
 
+<section id="notes">
+  <div class="wrap">
+    <p class="sec-eyebrow">Field notes</p>
+    <h2>Learned In <span class="accent">Production</span></h2>
+    <p class="sec-lede">Mistakes that fail quietly. Each one is covered in the guide, with the fix.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Post as the Flow bot</h3>
+        <p>A card posted "as User" appears as that person, and Teams never notifies anyone about
+          their own message, so whoever owns the workflow's connection silently stops getting
+          alerts. The Flow bot notifies everyone.</p>
+        <div class="meta">Chapters 01, 06</div>
+      </div>
+      <div class="card">
+        <h3>Team from the variable, not the list</h3>
+        <p>Filling Team from the "List joined teams" output makes the designer wrap the post in a
+          hidden For each: one attempt per team, failed runs, and new teams never posted to. Use the
+          <code>teamId</code> variable and check Code view.</p>
+        <div class="meta">Chapters 02, 08</div>
+      </div>
+      <div class="card">
+        <h3>Delivery methods add up</h3>
+        <p>Teams should be added to e-mail, never swapped for it. An "instead" rule made a
+          recipient lose e-mail without anyone noticing. Keep one sender per method, so a second
+          platform switch cannot send duplicates.</p>
+        <div class="meta">Chapters 04, 08</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="guide">
   <div class="wrap">
     <p class="sec-eyebrow">The guide</p>

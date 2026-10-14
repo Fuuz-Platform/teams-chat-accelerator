@@ -12,7 +12,7 @@ The code-view definitions of all three are in [templates/power-automate/](templa
 
 | Check | Why | Status |
 |---|---|---|
-| **A service account** with a Teams licence, for example `svc-fuuz-teams@customer.com`. Not a personal account | A workflow belongs to its creator and stops when that account is disabled. Posts "as User" show this account | VERIFIED practice |
+| **A service account** with a Teams licence, for example `svc-fuuz-teams@customer.com`. Not a personal account | A workflow belongs to its creator and stops when that account is disabled. Posts "as User" show this account, and that account gets no notification for them, so never run the workflows on the connection of a person who needs the alerts | VERIFIED practice |
 | **Commercial Microsoft 365 tenant** | The Flow bot is not supported in GCC, GCC High or DoD. There, use **Post as: User** | DOCUMENTED |
 | **Workflows app allowed** in Teams admin center > Teams apps > Manage apps (status "Allowed") | Flow bot actions require it | DOCUMENTED |
 | **Licence** | The webhook trigger and the Teams connector are standard (no premium licence). The HTTP-with-Entra and generic HTTP actions in chapter 06, section 4b, are premium | DOCUMENTED |
@@ -43,6 +43,7 @@ Use this when Fuuz sends cards to named people.
 5. Open the trigger again. Copy the **HTTP URL** only into the Fuuz Connection (chapter 03). Do not paste it into chat, e-mail or a ticket.
 
 **Notes**
+- Post as **Flow bot**, not User, in every workflow. A card posted as User appears as that person's own message, and Teams does not notify a person about their own messages, so the connection owner silently stops getting alerts. As Flow bot, everyone is notified, including the connection owner (chapter 01, section 6).
 - Use the **expression**, not the dynamic-content picker. Picking `attachments` from dynamic content wraps the action in an **Apply to each** loop.
 - The router workflow needs `string()` around the card (VERIFIED). A fixed-target workflow may accept the object as is, but use `string()` everywhere for consistency.
 - The recipient must be a licensed Teams user in the same tenant. Guests and external addresses fail in the run history.
@@ -125,8 +126,15 @@ The steps below use a **Condition** on `target`. A **Switch** works equally well
 ### 4.5 Post (only for `channel`)
 
 12. **Condition** `Is channel`: `triggerBody()?['fuuz']?['target']` **is equal to** `channel`.
-    - **If yes:** **Post card in a chat or channel**: Post as **Flow bot**, Post in **Channel**, Team = `variables('teamId')` (custom value), Channel = `variables('channelId')` (custom value), Adaptive Card = `string(triggerBody()?['attachments']?[0]?['content'])`.
+    - **If yes:** **Post card in a chat or channel**:
+      - **Post as:** `Flow bot`
+      - **Post in:** `Channel`
+      - **Team:** `variables('teamId')` (enter as a custom value or expression, **never** the "Id" from the dynamic content of List joined teams; see 4.7)
+      - **Channel:** `variables('channelId')` (custom value or expression)
+      - **Adaptive Card:** `string(triggerBody()?['attachments']?[0]?['content'])`
     - **If no:** nothing (this was an `ensure`).
+
+    This exact configuration is VERIFIED in production (2026-10-14): a card sent to a work-unit channel through the router's Post card step with Post as Flow bot, Post in Channel, Team and Channel from the variables, got 202 from the trigger and the card landed in the channel.
 13. Name it `Fuuz <App> - Teams` and **Save**.
 
 [Screenshot: the collapsed router workflow showing the Is DM condition, the team block, the channel block and the final Is channel condition]
@@ -138,6 +146,12 @@ The steps below use a **Condition** on `target`. A **Switch** works equally well
 - **Existing teams.** The install step above runs only for a team the workflow creates. For an existing team, install the app once by hand or add the guarded step in chapter 06, section 3.
 - **Hidden channels.** Teams hides new channels from members by default. Members must "Show" the channel, or the team owner can set it to show for everyone (chapter 07).
 - **Membership.** A team created by the workflow is **private** and has only the service account as owner. Adding people is the customer's Teams administrator's job (chapter 07).
+
+### 4.7 Designer pitfalls in the Post card step
+
+- **Team picked from "List joined teams" adds a hidden loop.** In the new designer, if you fill **Team** from the dynamic content of **List joined teams** (its "Id"), Power Automate silently wraps the Post card step in a **For each** over every joined team. The result is one post attempt per team: all but one fail, so the run shows **Failed**, and a team the workflow has just created is never posted to, because it is not in that list. Always use `variables('teamId')`.
+- **Check in Code view** (the Post card step's **... > Peek code**, or the flow's code view) that `body/recipient/groupId` reads `@variables('teamId')`, `body/recipient/channelId` reads `@variables('channelId')`, and that no `Foreach` action wraps the Post card step.
+- **Switching "Post as" clears the step.** Changing **Post as** between User and Flow bot clears **Team**, **Channel** and **Adaptive Card**. Re-enter all three before you save, then check Code view again.
 
 ## 5. On every workflow
 

@@ -15,6 +15,7 @@
 ## Step 1. Build the router workflow (Teams side)
 
 1. Follow chapter 02, section 4 to build **"Fuuz Andon - Teams"** with the `dm` / `channel` / `ensure` branches, the Workflows app install after Create a team, and the 3-minute and 2-minute waits.
+   Every Post card step posts as **Flow bot**. In the channel post, Team and Channel are the `teamId` and `channelId` variables, never the "Id" from List joined teams; check Code view for a hidden For each (chapter 02, section 4.7).
 2. Confirm the Workflows app id for this tenant (chapter 06, section 2).
 3. Add a co-owner and failure notifications.
 4. Keep the trigger URL page open.
@@ -43,6 +44,8 @@ On the Notification Channels screen, for each recipient row that should use Team
 - **Teams target = "The Andon's own channel"** (`channel`): the alert posts into the channel of the equipment where the Andon was raised. Several channel recipients for the same alert still give **one** post.
 - **Teams target = "Direct message"** (`dm`): a DM to the person. Set **Teams sign-in** (`teamsUpn`) when their Microsoft 365 sign-in differs from their e-mail.
 - The recipient's usual filters (site, area, line, reason, minimum severity) still apply.
+- **Teams is added, not swapped.** A recipient with a Teams target still gets e-mail (and SMS where set). Setting a Teams target never removes another method; if a person wants fewer messages, remove that method on their row explicitly (chapter 04, section 6).
+- If the alert flow sends e-mail itself, leave any platform-level "send e-mail for this notification channel" switch off, or recipients can get each e-mail twice.
 [Screenshot: recipient edit dialog with the Teams target select]
 
 ## Step 5. Pre-provision the teams and channels
@@ -56,7 +59,7 @@ On the Notification Channels screen, for each recipient row that should use Team
 ## Step 6. Test
 
 1. **DM test:** on your own recipient row set the target to `dm`. Andon Alerts > **Send test**. Expect a TEST card in your chat with Workflows within seconds, and `ok` on the screen.
-2. **Channel test:** raise a real test Andon on one work unit (severity 1 or 2). Expect the card in channel `<unit code>` of team `Andon - <SITE> - <AREA>`. In `AndonAlertLedger`: a `teams` row `sent`; other channel recipients for the same Andon `suppressed` / `duplicate`.
+2. **Channel test:** raise a real test Andon on one work unit (severity 1 or 2). The router posts it as Flow bot (VERIFIED in production, 2026-10-14). Expect the card in channel `<unit code>` of team `Andon - <SITE> - <AREA>`. In `AndonAlertLedger`: a `teams` row `sent`; other channel recipients for the same Andon `suppressed` / `duplicate`.
 3. **Links:** **Open Andon** ends `?andon=<code>&tenant=<tenant>`. **Acknowledge** adds `&ack=1` and asks before acknowledging.
 4. **Escalate** (amber card) and **resolve** (green card, no Acknowledge button).
 5. **Failure path:** deactivate the Connection, send a DM test: that recipient fails with "missing or inactive", e-mail and SMS still go, and no URL appears in any log. Reactivate.
@@ -71,7 +74,8 @@ On the Notification Channels screen, for each recipient row that should use Team
 
 | Problem | Fix |
 |---|---|
-| Teams recipients got e-mail | The recipient query does not select the Teams fields |
+| Teams recipients got e-mail but no Teams card | The recipient query does not select the Teams fields |
 | First card to a new area took 5 minutes | Run Sync before go-live |
 | 403 BotNotInConversationRoster | The team existed before and lacks Workflows; install it (chapter 06, section 3.2) |
+| You get no alert for cards in your own work-unit channel | The router posts as User on your connection; switch Post card to **Flow bot** (chapter 01, section 6) |
 | Duplicate teams | Two first alerts within 3 minutes in a new area; see chapter 07, section 5 |

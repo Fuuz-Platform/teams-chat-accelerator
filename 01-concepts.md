@@ -97,8 +97,12 @@ A Teams bot (chapter 06, section 6) gives a real delivery answer. Workflows does
 
 | Post as | Shows as | Notes |
 |---|---|---|
-| Flow bot | "Workflows" | Recommended for alerts. Needs the Workflows app in the team or chat (chapter 06). Not available in GCC, GCC High or DoD tenants (DOCUMENTED) |
-| User | The workflow connection's account (a service account) | Works where Flow bot does not. Every post is attributed to that account, so use a dedicated service account, not a person |
+| Flow bot | "Workflows" | **Recommended for alerts, DMs and channels.** Channel posts as Flow bot are VERIFIED in production (2026-10-14). Needs the Workflows app in the team or chat (chapter 06). Not available in GCC, GCC High or DoD tenants (DOCUMENTED) |
+| User | The workflow connection's account | Fallback only, where Flow bot is not available. Every post is attributed to that account, and that account is **not notified** about it (see below) |
+
+**Why Flow bot and not User.** A card posted "as User" appears as a message written by that person. Teams does not notify anyone about their own messages, so the person whose connection runs the workflow silently stops getting alerts for every card the workflow posts, including cards in channels they follow and in their own alert channel. Posted as Flow bot, the card comes from Workflows, and everyone is notified, including the connection owner. If you must post as User (for example in a GCC tenant), use a dedicated service account that nobody relies on for alerts.
+
+The Flow bot's name ("Workflows") and icon belong to Microsoft and cannot be changed. To make the poster carry your own name and icon, see chapter 06, section 7.
 
 ## 7. Where the delays come from
 

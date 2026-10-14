@@ -186,6 +186,7 @@
               "runAfter": { "Channel_found": [ "Succeeded" ] },
               "actions": {
                 "Post_card_channel": {
+                  "_comment": "VERIFIED in production (2026-10-14). groupId and channelId MUST be the variables, never the Id from List joined teams dynamic content (that adds a hidden Foreach over every joined team). No Foreach may wrap this action. Changing 'poster' clears Team, Channel and card. See chapter 02, section 4.7.",
                   "type": "OpenApiConnection",
                   "inputs": {
                     "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },

@@ -48,6 +48,7 @@ flowchart LR
 Rules that came out of production:
 - **One post per channel per alert.** Several recipient rows that resolve to the same team and channel produce one card; the others are logged `suppressed` / `duplicate` in the ledger.
 - **Per-recipient catch.** A Teams failure for one recipient must not stop e-mail or SMS for the others.
+- **Delivery methods add up.** A recipient who has Teams configured gets the Teams card **in addition to** e-mail (and SMS where set), not instead of it. An "instead" rule (Teams replaces e-mail) made a recipient silently lose e-mail (VERIFIED incident). If someone wants fewer messages, they remove a method explicitly. See section 6.
 - **Select what you route on.** The recipient query must SELECT the Teams custom fields (`teamsTarget`, `teamsUpn`). When they were missing from the selection, every Teams recipient silently fell back to e-mail (VERIFIED incident). Add a test that every field the router reads is in the query's selection, and make your test mock return only the selected fields.
 - **The route comes from server-side rows.** `teamsTargetOf(customFields, emails)` gives `{ target: "channel" | "dm", upn }`. A DM uses `teamsUpn` when set, else the recipient's e-mail. A channel recipient means "the channel of the Andon's own equipment", never a typed team.
 
@@ -81,7 +82,7 @@ flowchart LR
 
 - **Recipients:** derived from the record (assignee, owner, creator, watchers), minus the **actor**. **Nobody is notified about their own change.** The actor is `after.updatedByUserId`, falling back to `createdByUserId`; whether `after` always carries `updatedByUserId` is **TO VERIFY** per model (if not, re-read the model's data-change record).
 - **Domain allow-list:** DMs only to e-mail domains in a setting (`dmAllowedDomains`, e.g. the customer's own domains), so a mis-addressed card never goes outside.
-- **Per-user preference:** a `UserNotificationPreference` row per user with `channel` = `teams` / `email` / `both` / empty (empty = the default in settings). Let users change it on a preferences screen, written only for the caller.
+- **Per-user preference:** a `UserNotificationPreference` row per user listing the methods that person receives (for example `teams`, `email`, `sms`), empty = the default in settings. Methods **add up**: configuring Teams for someone adds Teams to what they already get; it never switches off e-mail. A person who wants fewer methods removes one explicitly. Let users change it on a preferences screen, written only for the caller.
 - **Dedupe key:** e.g. `event:model:recordId:user:<id>`. One pending card per event, record and person. Row id `nq_<key>_<minute>` with an **upsert**, so concurrent events in the same minute land on one row.
 - **Bursts:** a new event updates the pending row (`burstCount + 1`, newest content wins). "Updated" DMs are leading-edge: the first sends at once; later ones within a window are named in the next DM.
 - **Restricted records:** recipients without access get a **content-free** card (chapter 09).
@@ -121,10 +122,12 @@ Recommended go-live order: deploy everything inert > test the workflows alone > 
 - Post flows log no payloads at all (chapter 03).
 - Set the flow log level to `Error` for triggered flows.
 
-## 6. Settings
+## 6. Settings and delivery preferences
 
 - Keep parameters in settings rows, not in flow code. Normalise on read so a bad hand edit falls back to the default and never fails a send.
 - **Every ApplicationConfiguration row is assigned to the module that owns it.**
+- **Per-recipient delivery methods are additive.** Teams, e-mail and SMS are independent switches on a recipient (or a user's preference row). Turning Teams on adds a Teams card; it does not remove e-mail or SMS. Do not build a rule where one method replaces another: a recipient whose e-mail was silently replaced by Teams stopped receiving e-mail without anyone noticing (VERIFIED incident). Removing a method is always an explicit, visible choice on the recipient or preference screen.
+- **One sender per delivery method.** If your app sends the e-mail itself from the alert flow, keep any platform-level "send e-mail for this notification channel" switch **off**. With both on, recipients can get the same alert e-mail twice. Decide which component owns each method (app flow or platform), document it, and check the switch in the weekly health check (chapter 08, section 6).
 
 ## 7. Pre-deploy checks that would have prevented production incidents
 

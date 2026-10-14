@@ -76,7 +76,7 @@ The Andon reference implementation uses the shorter **direct-send** variant: the
 | [03-fuuz-connection-and-flows.md](03-fuuz-connection-and-flows.md) | The Fuuz Connection, the post flow, the send step, deep links |
 | [04-patterns-data-change-driven.md](04-patterns-data-change-driven.md) | Event-driven alerts: direct send, or detector, queue and sender; dedupe, preferences, switches, pilots |
 | [05-adaptive-cards-styling.md](05-adaptive-cards-styling.md) | Card layout, severity colours, size limits, light and dark testing |
-| [06-bots-and-app-installation.md](06-bots-and-app-installation.md) | Getting the Flow bot into teams, group chats and 1:1 chats without manual steps |
+| [06-bots-and-app-installation.md](06-bots-and-app-installation.md) | Getting the Flow bot into teams, group chats and 1:1 chats without manual steps; branding the poster |
 | [07-provisioning-teams-and-channels.md](07-provisioning-teams-and-channels.md) | Naming from codes, splits, pre-provisioning ("Sync Teams channels"), twin teams |
 | [08-operations-limits-troubleshooting.md](08-operations-limits-troubleshooting.md) | Limits, throttling, run history, an error table, rotation |
 | [09-security.md](09-security.md) | Secrets, logging, restricted content, ownership, least privilege |

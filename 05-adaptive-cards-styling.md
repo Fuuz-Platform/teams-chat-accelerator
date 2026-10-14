@@ -38,6 +38,7 @@ All Fuuz Teams cards are **Adaptive Card 1.4**, built by one renderer (`teams-sh
 - **Headline block:** for alerts, a `Container` with a `style` that carries the severity colour, `bleed: true`. For plain notices (assignment DMs), no container.
 - **Facts:** a `FactSet`. Drop empty values. Titles at most 30 characters, values at most 160.
 - **Buttons:** the first is the main action. Keep to two or three.
+- **Branding:** the poster's name and icon ("Workflows") cannot be changed, so the card itself carries your brand: the logo header, the app and event label, and the severity colours. This is the cheapest way to make alerts recognisable. For a poster with your own name and icon, see chapter 06, section 7.
 
 ## 3. Severity colours
 

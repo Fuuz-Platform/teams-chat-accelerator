@@ -43,7 +43,12 @@
 | Fuuz HTTP 429 | Throttled at the trigger | Nothing; retried or sent with the next card |
 | Flow deploy refused: "data must NOT have additional properties" | Extra key in a node's data (e.g. `transform` on tryCatch) | Lint with `nodeSchema.cjs` |
 | Detector runs fail: "Cannot query field X on type Y" | A field selected that the model does not have | Schema check before deploy (chapter 04, section 7) |
-| Teams recipients get e-mail instead | Recipient query does not select the Teams custom fields | Add `teamsTarget teamsUpn` to the selection |
+| Teams recipients get e-mail but no Teams card | Recipient query does not select the Teams custom fields | Add `teamsTarget teamsUpn` to the selection |
+| A recipient with Teams configured no longer gets e-mail | A rule treats Teams as a replacement for e-mail instead of an addition | Make delivery methods additive (chapter 04, section 6); remove a method only explicitly |
+| Recipients get the same e-mail twice | The app's alert flow sends e-mail and a platform-level "send e-mail for this notification channel" switch is also on | Turn the platform switch off; keep one sender per method (chapter 04, section 6) |
+| I get no notification for cards in my own alert channel (others do) | The workflow posts **as User** on your connection. Teams does not notify you about your own messages | Post as **Flow bot** (chapter 02, section 2 notes); if User is unavoidable, run it on a dedicated service account |
+| Channel post run shows **Failed** with several Post card attempts, one per team; cards never reach a team the workflow just created | Team was filled from the "Id" in **List joined teams** dynamic content, so the designer wrapped Post card in a hidden **For each** over every joined team | Set Team to `variables('teamId')`; in Code view confirm `groupId` is `@variables('teamId')` and no `Foreach` wraps the post (chapter 02, section 4.7) |
+| Post card step lost its Team, Channel or card after an edit | Changing **Post as** between User and Flow bot clears Team, Channel and Adaptive Card | Re-enter all three before saving; check Code view |
 | Workflow turned itself off | Owner left, or repeated failures | Turn it on; add a co-owner |
 | First card to a new area very late | Normal: team and channel creation | Pre-provision |
 
@@ -70,3 +75,5 @@ Rotate only when a URL may have leaked, or on the customer's own schedule.
 - [ ] Send log: rows in `retry` / `dead`; reasons understood
 - [ ] Connections: active; payload logging still off
 - [ ] New sites or areas: Sync run, members added
+- [ ] Platform-level "send e-mail for this notification channel" switch still **off** where the app sends e-mail itself (no duplicate e-mails)
+- [ ] Every Post card step still posts as **Flow bot**
