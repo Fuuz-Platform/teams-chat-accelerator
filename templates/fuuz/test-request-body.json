@@ -1,0 +1,42 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "fallbackText": "Fuuz Teams test card",
+        "body": [
+          {
+            "type": "Container",
+            "style": "accent",
+            "bleed": true,
+            "items": [
+              { "type": "TextBlock", "text": "Fuuz Teams test card", "size": "Medium", "weight": "Bolder", "wrap": true },
+              { "type": "TextBlock", "text": "If you can read this, the workflow and the Flow bot work for this target.", "isSubtle": true, "wrap": true }
+            ]
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              { "title": "Sent by", "value": "Fuuz integration test" },
+              { "title": "Target", "value": "<dm | channel>" }
+            ]
+          }
+        ],
+        "actions": []
+      }
+    }
+  ],
+  "fuuz": {
+    "target": "dm",
+    "recipient": "<your.upn@customer.com>",
+    "teamName": null,
+    "teamDescription": null,
+    "channelName": null,
+    "eventKey": "test:manual:<yyyy-mm-dd>"
+  }
+}

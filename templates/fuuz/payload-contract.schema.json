@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fuuz.com/accelerators/teams-integration/payload-contract.schema.json",
+  "title": "Fuuz to Teams workflow request",
+  "description": "The body Fuuz POSTs to a Power Automate 'When a Teams webhook request is received' trigger. The type/attachments part is Microsoft's documented webhook format; the fuuz object is the routing the workflow reads with triggerBody()?['fuuz'].",
+  "type": "object",
+  "required": ["type", "attachments", "fuuz"],
+  "properties": {
+    "type": { "const": "message" },
+    "attachments": {
+      "type": "array",
+      "maxItems": 1,
+      "description": "Exactly one card for dm / channel; empty for ensure.",
+      "items": {
+        "type": "object",
+        "required": ["contentType", "contentUrl", "content"],
+        "properties": {
+          "contentType": { "const": "application/vnd.microsoft.card.adaptive" },
+          "contentUrl": { "type": "null" },
+          "content": {
+            "type": "object",
+            "description": "The Adaptive Card as an object. The workflow stringifies it with string(...).",
+            "required": ["type", "version", "body"],
+            "properties": {
+              "type": { "const": "AdaptiveCard" },
+              "$schema": { "type": "string" },
+              "version": { "const": "1.4" },
+              "fallbackText": { "type": "string", "maxLength": 300 },
+              "body": { "type": "array" },
+              "actions": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "required": ["type", "title", "url"],
+                  "properties": {
+                    "type": { "const": "Action.OpenUrl" },
+                    "title": { "type": "string", "minLength": 1, "maxLength": 40 },
+                    "url": { "type": "string", "pattern": "^https://[^\\s]+[?&]tenant=[^&\\s]+$" },
+                    "style": { "enum": ["default", "positive", "destructive"] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "fuuz": {
+      "type": "object",
+      "required": ["target"],
+      "properties": {
+        "target": { "enum": ["dm", "channel", "ensure"] },
+        "recipient": { "type": ["string", "null"], "pattern": "^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$", "description": "dm only: the recipient's Microsoft 365 sign-in name (UPN)." },
+        "teamName": { "type": ["string", "null"], "minLength": 1, "maxLength": 80, "pattern": "^[^#%&*{}/\\\\:<>?+|'\";~]+$", "description": "channel / ensure: exact team display name, built from codes." },
+        "teamDescription": { "type": ["string", "null"], "maxLength": 200 },
+        "channelName": { "type": ["string", "null"], "minLength": 1, "maxLength": 50, "pattern": "^[^#%&*{}/\\\\:<>?+|'\";~]+$", "description": "channel / ensure: exact standard channel display name, built from codes." },
+        "autoCreate": { "type": "boolean", "description": "Legacy; ignored by the workflow (it always creates). Omit in new builds." },
+        "eventKey": { "type": "string", "maxLength": 200, "description": "Optional: shows in the run history to match a Fuuz send-log row." },
+        "kind": { "type": "string", "maxLength": 60 },
+        "redacted": { "type": "boolean" }
+      },
+      "allOf": [
+        { "if": { "properties": { "target": { "const": "dm" } } }, "then": { "required": ["recipient"], "properties": { "recipient": { "type": "string" } } } },
+        { "if": { "properties": { "target": { "enum": ["channel", "ensure"] } } }, "then": { "required": ["teamName", "channelName"], "properties": { "teamName": { "type": "string" }, "channelName": { "type": "string" } } } }
+      ]
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "fuuz": { "properties": { "target": { "const": "ensure" } } } } }, "then": { "properties": { "attachments": { "maxItems": 0 } } } },
+    { "if": { "properties": { "fuuz": { "properties": { "target": { "enum": ["dm", "channel"] } } } } }, "then": { "properties": { "attachments": { "minItems": 1 } } } }
+  ]
+}

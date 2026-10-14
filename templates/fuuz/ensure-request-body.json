@@ -1,0 +1,12 @@
+{
+  "type": "message",
+  "attachments": [],
+  "fuuz": {
+    "target": "ensure",
+    "recipient": null,
+    "teamName": "Andon - <SITE_CODE> - <AREA_CODE>",
+    "teamDescription": "Fuuz Andon alerts for <SITE_CODE> / <AREA_CODE>. Members are managed by your Teams administrator.",
+    "channelName": "<WORK_UNIT_CODE>",
+    "eventKey": "ensure:<SITE_CODE>|<AREA_CODE>|<WORK_UNIT_CODE>"
+  }
+}

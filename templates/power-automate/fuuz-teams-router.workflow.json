@@ -1,0 +1,210 @@
+{
+  "_readme": [
+    "Fuuz Teams router workflow (dm / channel / ensure) in Power Automate code-view form. Reference shape of 'Fuuz Andon - Teams' (VERIFIED in production, Andon reference).",
+    "This is a REVIEW TEMPLATE, not an import package: build the workflow in the designer (chapter 02, section 4) and compare your code view with this file.",
+    "Connector parameter keys (body/displayName, body/recipient/groupId, ...) follow common Power Automate exports of the Microsoft Teams connector; your export may differ slightly. The expressions are the part to copy exactly.",
+    "Placeholders: <WORKFLOWS_APP_ID> (chapter 06, section 2; c3a1996d-db0f-4857-a6ea-7aabf0266b00 in the reference Fuuz tenant).",
+    "Remove every key starting with '_' before using any part of this file."
+  ],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "$connections": { "defaultValue": {}, "type": "Object" },
+      "$authentication": { "defaultValue": {}, "type": "SecureObject" }
+    },
+    "triggers": {
+      "manual": {
+        "_comment": "When a Teams webhook request is received (TeamsIncomingWebhookTrigger). Who can trigger the flow = Anyone.",
+        "type": "Request",
+        "kind": "Http",
+        "inputs": { "triggerAuthenticationType": "All" }
+      }
+    },
+    "actions": {
+      "Initialize_teamId": {
+        "type": "InitializeVariable",
+        "inputs": { "variables": [ { "name": "teamId", "type": "string", "value": "" } ] },
+        "runAfter": {}
+      },
+      "Initialize_channelId": {
+        "type": "InitializeVariable",
+        "inputs": { "variables": [ { "name": "channelId", "type": "string", "value": "" } ] },
+        "runAfter": { "Initialize_teamId": [ "Succeeded" ] }
+      },
+      "Is_DM": {
+        "type": "If",
+        "expression": { "and": [ { "equals": [ "@triggerBody()?['fuuz']?['target']", "dm" ] } ] },
+        "runAfter": { "Initialize_channelId": [ "Succeeded" ] },
+        "actions": {
+          "Post_card_DM": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },
+              "parameters": {
+                "poster": "Flow bot",
+                "location": "Chat with Flow bot",
+                "body/recipient": "@triggerBody()?['fuuz']?['recipient']",
+                "body/messageBody": "@string(triggerBody()?['attachments']?[0]?['content'])"
+              },
+              "authentication": "@parameters('$authentication')"
+            }
+          }
+        },
+        "else": {
+          "actions": {
+            "List_joined_teams": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "GetAllTeams" },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Filter_teams": {
+              "type": "Query",
+              "inputs": {
+                "from": "@body('List_joined_teams')?['value']",
+                "where": "@equals(item()?['displayName'], triggerBody()?['fuuz']?['teamName'])"
+              },
+              "runAfter": { "List_joined_teams": [ "Succeeded" ] }
+            },
+            "Team_found": {
+              "type": "If",
+              "expression": { "and": [ { "greater": [ "@length(body('Filter_teams'))", 0 ] } ] },
+              "runAfter": { "Filter_teams": [ "Succeeded" ] },
+              "actions": {
+                "Set_teamId_existing": {
+                  "type": "SetVariable",
+                  "inputs": { "name": "teamId", "value": "@first(body('Filter_teams'))?['id']" }
+                },
+                "_Optional_install_in_existing_team": {
+                  "_comment": "Optional guarded install for an existing team (TO VERIFY). See snippet-install-workflows-existing-team.json and chapter 06, section 3.2.",
+                  "type": "Compose",
+                  "inputs": "see snippet-install-workflows-existing-team.json",
+                  "runAfter": { "Set_teamId_existing": [ "Succeeded" ] }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Create_a_team": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "CreateATeam" },
+                      "parameters": {
+                        "body/displayName": "@triggerBody()?['fuuz']?['teamName']",
+                        "body/description": "@coalesce(triggerBody()?['fuuz']?['teamDescription'], triggerBody()?['fuuz']?['teamName'])",
+                        "body/visibility": "Private"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Set_teamId_new": {
+                    "type": "SetVariable",
+                    "inputs": { "name": "teamId", "value": "@body('Create_a_team')?['newTeamId']" },
+                    "runAfter": { "Create_a_team": [ "Succeeded" ] }
+                  },
+                  "Delay_3_minutes": {
+                    "type": "Wait",
+                    "inputs": { "interval": { "count": 3, "unit": "Minute" } },
+                    "runAfter": { "Set_teamId_new": [ "Succeeded" ] }
+                  },
+                  "Install_Workflows_app": {
+                    "_comment": "Send a Microsoft Graph HTTP request. The Uri MUST be an expression (leading @). VERIFIED.",
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "HttpRequest" },
+                      "parameters": {
+                        "Uri": "@concat('https://graph.microsoft.com/v1.0/teams/', variables('teamId'), '/installedApps')",
+                        "Method": "POST",
+                        "Body": "{\"teamsApp@odata.bind\":\"https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/<WORKFLOWS_APP_ID>\"}",
+                        "ContentType": "application/json"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    },
+                    "runAfter": { "Delay_3_minutes": [ "Succeeded" ] }
+                  }
+                }
+              }
+            },
+            "List_channels": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "GetChannelsForGroup" },
+                "parameters": { "groupId": "@variables('teamId')" },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": { "Team_found": [ "Succeeded" ] }
+            },
+            "Filter_channels": {
+              "type": "Query",
+              "inputs": {
+                "from": "@body('List_channels')?['value']",
+                "where": "@equals(item()?['displayName'], triggerBody()?['fuuz']?['channelName'])"
+              },
+              "runAfter": { "List_channels": [ "Succeeded" ] }
+            },
+            "Channel_found": {
+              "type": "If",
+              "expression": { "and": [ { "greater": [ "@length(body('Filter_channels'))", 0 ] } ] },
+              "runAfter": { "Filter_channels": [ "Succeeded" ] },
+              "actions": {
+                "Set_channelId_existing": {
+                  "type": "SetVariable",
+                  "inputs": { "name": "channelId", "value": "@first(body('Filter_channels'))?['id']" }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Create_a_channel": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "CreateChannel" },
+                      "parameters": {
+                        "groupId": "@variables('teamId')",
+                        "body/displayName": "@triggerBody()?['fuuz']?['channelName']",
+                        "body/membershipType": "standard"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Set_channelId_new": {
+                    "type": "SetVariable",
+                    "inputs": { "name": "channelId", "value": "@body('Create_a_channel')?['id']" },
+                    "runAfter": { "Create_a_channel": [ "Succeeded" ] }
+                  },
+                  "Delay_2_minutes": {
+                    "type": "Wait",
+                    "inputs": { "interval": { "count": 2, "unit": "Minute" } },
+                    "runAfter": { "Set_channelId_new": [ "Succeeded" ] }
+                  }
+                }
+              }
+            },
+            "Is_channel": {
+              "type": "If",
+              "expression": { "and": [ { "equals": [ "@triggerBody()?['fuuz']?['target']", "channel" ] } ] },
+              "runAfter": { "Channel_found": [ "Succeeded" ] },
+              "actions": {
+                "Post_card_channel": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "@variables('teamId')",
+                      "body/recipient/channelId": "@variables('channelId')",
+                      "body/messageBody": "@string(triggerBody()?['attachments']?[0]?['content'])"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "else": { "actions": {} }
+            }
+          }
+        }
+      }
+    }
+  }
+}

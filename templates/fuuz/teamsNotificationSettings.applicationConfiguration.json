@@ -1,0 +1,43 @@
+{
+  "_readme": "Generic ApplicationConfiguration row for the detect / queue / send pattern (chapter 04, section 4). Assign it to the module that owns the notifications. The webhook URLs are NOT here: they live only in the Connections (teamsAlertsWebhook, teamsDmWebhook). Normalise on read so a bad hand edit falls back to the defaults.",
+  "id": "teamsNotificationSettings",
+  "name": "Teams Notification Settings",
+  "moduleId": "<owning module>",
+  "description": "Switches and parameters for Teams channel alerts and direct messages.",
+  "configJson": {
+    "version": 1,
+    "live": false,
+    "channelEvents": [],
+    "dmEvents": [],
+    "stateChangeStatuses": ["onHold", "rejected"],
+    "dmAllowedDomains": ["<customer.com>"],
+    "defaultChannel": "both",
+    "pilotRedirectUpn": "<pilot.user@customer.com>",
+    "coalesceSeconds": 60,
+    "updateWindowMinutes": 10,
+    "maxPer5Min": 20,
+    "maxAgeHours": 72,
+    "appUrl": "https://<fuuz-app-host>"
+  },
+  "configSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Teams notification settings",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": { "type": "integer" },
+      "live": { "type": "boolean", "description": "false: nothing is queued or posted" },
+      "channelEvents": { "type": "array", "items": { "type": "string" }, "description": "events that post to the alerts channel" },
+      "dmEvents": { "type": "array", "items": { "type": "string" }, "description": "events that send direct messages" },
+      "stateChangeStatuses": { "type": "array", "items": { "type": "string" } },
+      "dmAllowedDomains": { "type": "array", "items": { "type": "string" }, "description": "DMs only to these e-mail domains" },
+      "defaultChannel": { "type": "string", "enum": ["teams", "email", "both"] },
+      "pilotRedirectUpn": { "type": ["string", "null"], "description": "when set, every card goes to this person as a [TEST for ...] DM" },
+      "coalesceSeconds": { "type": "integer", "minimum": 0 },
+      "updateWindowMinutes": { "type": "integer", "minimum": 0 },
+      "maxPer5Min": { "type": "integer", "minimum": 1, "maximum": 25 },
+      "maxAgeHours": { "type": "integer", "minimum": 1 },
+      "appUrl": { "type": "string", "pattern": "^https://" }
+    }
+  }
+}

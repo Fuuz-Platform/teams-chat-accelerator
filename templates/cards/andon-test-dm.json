@@ -1,0 +1,96 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "fallbackText": "TEST - Andon alert to Teams",
+        "body": [
+          {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "width": "auto",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "Image",
+                    "url": "https://fuuz-news.b-cdn.net/brand/email/fuuz-logo-horizontal-on-midnight-320w.png",
+                    "width": "84px",
+                    "altText": "Fuuz"
+                  }
+                ]
+              },
+              {
+                "type": "Column",
+                "width": "stretch",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "MES - Test",
+                    "horizontalAlignment": "Right",
+                    "size": "Small",
+                    "isSubtle": true,
+                    "wrap": true,
+                    "color": "Default"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "style": "accent",
+            "bleed": true,
+            "spacing": "Medium",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "TEST - Andon alert to Teams",
+                "size": "Medium",
+                "weight": "Bolder",
+                "wrap": true,
+                "spacing": "Medium"
+              },
+              {
+                "type": "TextBlock",
+                "text": "This is a test card from Andon Alerts > Send test.",
+                "isSubtle": true,
+                "wrap": true,
+                "spacing": "Small"
+              }
+            ]
+          },
+          {
+            "type": "FactSet",
+            "spacing": "Medium",
+            "facts": [
+              {
+                "title": "Recipient row",
+                "value": "<RECIPIENT_NAME>"
+              },
+              {
+                "title": "Sent at",
+                "value": "<LOCAL_TIME TZ>"
+              }
+            ]
+          }
+        ],
+        "actions": []
+      }
+    }
+  ],
+  "fuuz": {
+    "target": "dm",
+    "recipient": "<UPN>",
+    "teamName": null,
+    "teamDescription": null,
+    "channelName": null
+  }
+}

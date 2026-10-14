@@ -1,0 +1,73 @@
+{
+  "_readme": [
+    "Install the Workflows app in a user's personal scope before a Flow bot DM (chapter 06, section 5, option b1). Status: TO VERIFY.",
+    "Uses the premium HTTP action with Active Directory OAuth (client credentials) because the Teams connector rejects /users/{id}/teamwork paths (VERIFIED).",
+    "App registration: separate, single tenant, Microsoft Graph APPLICATION permission TeamsAppInstallation.ReadWriteForUser.All with admin consent.",
+    "Placeholders: <TENANT_ID>, <CLIENT_ID>, <KEY_VAULT_SECRET_NAME>, <WORKFLOWS_APP_ID>. Secure inputs/outputs are on for every step that touches the secret.",
+    "Place the scope in the dm branch before Post_card_DM, and set Post_card_DM runAfter to { Ensure_Workflows_for_user: [Succeeded, Failed] } so a failed install never blocks the post."
+  ],
+  "actions": {
+    "Ensure_Workflows_for_user": {
+      "type": "Scope",
+      "actions": {
+        "Get_secret": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_keyvault", "connectionName": "shared_keyvault", "operationId": "GetSecret" },
+            "parameters": { "secretName": "<KEY_VAULT_SECRET_NAME>" },
+            "authentication": "@parameters('$authentication')"
+          },
+          "runtimeConfiguration": { "secureData": { "properties": [ "inputs", "outputs" ] } }
+        },
+        "Get_user_installs": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.microsoft.com/v1.0/users/@{encodeUriComponent(triggerBody()?['fuuz']?['recipient'])}/teamwork/installedApps?$expand=teamsApp&$filter=teamsApp/id eq '<WORKFLOWS_APP_ID>'",
+            "authentication": {
+              "type": "ActiveDirectoryOAuth",
+              "tenant": "<TENANT_ID>",
+              "audience": "https://graph.microsoft.com",
+              "clientId": "<CLIENT_ID>",
+              "secret": "@body('Get_secret')?['value']"
+            }
+          },
+          "runAfter": { "Get_secret": [ "Succeeded" ] },
+          "runtimeConfiguration": { "secureData": { "properties": [ "inputs" ] } }
+        },
+        "Not_installed": {
+          "type": "If",
+          "expression": { "and": [ { "equals": [ "@length(body('Get_user_installs')?['value'])", 0 ] } ] },
+          "runAfter": { "Get_user_installs": [ "Succeeded" ] },
+          "actions": {
+            "Install_for_user": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://graph.microsoft.com/v1.0/users/@{encodeUriComponent(triggerBody()?['fuuz']?['recipient'])}/teamwork/installedApps",
+                "headers": { "Content-Type": "application/json" },
+                "body": { "teamsApp@odata.bind": "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/<WORKFLOWS_APP_ID>" },
+                "authentication": {
+                  "type": "ActiveDirectoryOAuth",
+                  "tenant": "<TENANT_ID>",
+                  "audience": "https://graph.microsoft.com",
+                  "clientId": "<CLIENT_ID>",
+                  "secret": "@body('Get_secret')?['value']"
+                }
+              },
+              "runtimeConfiguration": { "secureData": { "properties": [ "inputs" ] } }
+            },
+            "Wait_after_user_install": {
+              "_comment": "TO VERIFY whether a wait is needed before the first Flow bot DM.",
+              "type": "Wait",
+              "inputs": { "interval": { "count": 1, "unit": "Minute" } },
+              "runAfter": { "Install_for_user": [ "Succeeded" ] }
+            }
+          },
+          "else": { "actions": {} }
+        }
+      },
+      "runAfter": {}
+    }
+  }
+}

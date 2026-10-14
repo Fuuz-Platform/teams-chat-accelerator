@@ -1,0 +1,49 @@
+{
+  "_readme": [
+    "Group chat: create the chat, install the Workflows app in it, post as Flow bot (chapter 06, section 4). Status: TO VERIFY.",
+    "The Graph path /chats/{id}/installedApps likely fails the Teams connector's path rule (first segment must be /teams, /me or /users); this snippet tries /me/chats/{id}/installedApps. If the connector or Graph refuses it, use the HTTP action with TeamsAppInstallation.ReadWriteForChat.All, or post as User (no bot).",
+    "Placeholders: <WORKFLOWS_APP_ID>. fuuz.members (semicolon-separated UPNs) and fuuz.chatTopic are OPTIONAL contract extensions, not part of the verified contract."
+  ],
+  "actions": {
+    "Create_a_chat": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "CreateChat" },
+        "parameters": {
+          "body/members": "@triggerBody()?['fuuz']?['members']",
+          "body/topic": "@triggerBody()?['fuuz']?['chatTopic']"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": {}
+    },
+    "Install_Workflows_in_chat": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "HttpRequest" },
+        "parameters": {
+          "Uri": "@concat('https://graph.microsoft.com/v1.0/me/chats/', body('Create_a_chat')?['id'], '/installedApps')",
+          "Method": "POST",
+          "Body": "{\"teamsApp@odata.bind\":\"https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/<WORKFLOWS_APP_ID>\"}",
+          "ContentType": "application/json"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": { "Create_a_chat": [ "Succeeded" ] }
+    },
+    "Post_card_group_chat": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },
+        "parameters": {
+          "poster": "Flow bot",
+          "location": "Group chat",
+          "body/recipient": "@body('Create_a_chat')?['id']",
+          "body/messageBody": "@string(triggerBody()?['attachments']?[0]?['content'])"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": { "Install_Workflows_in_chat": [ "Succeeded", "Failed" ] }
+    }
+  }
+}

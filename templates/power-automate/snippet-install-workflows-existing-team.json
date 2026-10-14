@@ -1,0 +1,48 @@
+{
+  "_readme": [
+    "Guarded install of the Workflows app into an EXISTING team (chapter 06, section 3.2, option A). Status: TO VERIFY.",
+    "Paste these actions into the 'Team found' yes-branch after Set_teamId_existing. Uses only the Teams connector (allowed path: /teams/{id}/installedApps).",
+    "Placeholders: <WORKFLOWS_APP_ID>. The doubled single quotes inside the expression are the escape for a quote in a Power Automate string."
+  ],
+  "actions": {
+    "Get_installed_Workflows": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "HttpRequest" },
+        "parameters": {
+          "Uri": "@concat('https://graph.microsoft.com/v1.0/teams/', variables('teamId'), '/installedApps?$expand=teamsApp&$filter=teamsApp/id eq ''<WORKFLOWS_APP_ID>''')",
+          "Method": "GET"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": { "Set_teamId_existing": [ "Succeeded" ] }
+    },
+    "Workflows_missing": {
+      "type": "If",
+      "expression": { "and": [ { "equals": [ "@length(body('Get_installed_Workflows')?['value'])", 0 ] } ] },
+      "runAfter": { "Get_installed_Workflows": [ "Succeeded" ] },
+      "actions": {
+        "Install_Workflows_app_existing": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "HttpRequest" },
+            "parameters": {
+              "Uri": "@concat('https://graph.microsoft.com/v1.0/teams/', variables('teamId'), '/installedApps')",
+              "Method": "POST",
+              "Body": "{\"teamsApp@odata.bind\":\"https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/<WORKFLOWS_APP_ID>\"}",
+              "ContentType": "application/json"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Wait_after_install": {
+          "_comment": "TO VERIFY whether a wait is needed for an existing team. 1 minute is a conservative start.",
+          "type": "Wait",
+          "inputs": { "interval": { "count": 1, "unit": "Minute" } },
+          "runAfter": { "Install_Workflows_app_existing": [ "Succeeded" ] }
+        }
+      },
+      "else": { "actions": {} }
+    }
+  }
+}

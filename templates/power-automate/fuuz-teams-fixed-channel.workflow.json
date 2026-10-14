@@ -1,0 +1,41 @@
+{
+  "_readme": [
+    "Fuuz Teams fixed-channel workflow in code-view form. Generic fixed-channel workflow, e.g. 'Fuuz - Quality Alerts' (VERIFIED shape).",
+    "REVIEW TEMPLATE: build in the designer (chapter 02, section 3) and compare. Remove '_' keys before reuse.",
+    "Placeholders: <TEAM_ID> (group id of the team), <CHANNEL_ID> (e.g. 19:...@thread.tacv2). The designer fills both when you pick the team and channel.",
+    "The Workflows app must be installed in the team once, or every post fails with 403 BotNotInConversationRoster."
+  ],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "$connections": { "defaultValue": {}, "type": "Object" },
+      "$authentication": { "defaultValue": {}, "type": "SecureObject" }
+    },
+    "triggers": {
+      "manual": {
+        "_comment": "When a Teams webhook request is received. Who can trigger the flow = Anyone.",
+        "type": "Request",
+        "kind": "Http",
+        "inputs": { "triggerAuthenticationType": "All" }
+      }
+    },
+    "actions": {
+      "Post_card_channel": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },
+          "parameters": {
+            "poster": "Flow bot",
+            "location": "Channel",
+            "body/recipient/groupId": "<TEAM_ID>",
+            "body/recipient/channelId": "<CHANNEL_ID>",
+            "body/messageBody": "@string(triggerBody()?['attachments']?[0]?['content'])"
+          },
+          "authentication": "@parameters('$authentication')"
+        },
+        "runAfter": {}
+      }
+    }
+  }
+}

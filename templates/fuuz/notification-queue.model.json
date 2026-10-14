@@ -1,0 +1,38 @@
+{
+  "_readme": "Generic queue and send-log model for the detect / queue / send pattern (chapter 04, section 3). Assign it to the module that owns the notifications. Enable data-change capture so the sender can trigger on Create. Adapt the restricted stamp to your access model.",
+  "name": "NotificationQueue",
+  "collection": "notificationQueue",
+  "moduleId": "<owning module>",
+  "dataChangeRetentionDays": 365,
+  "fields": [
+    { "name": "id", "type": "ID", "required": true, "note": "nq_<dedupeKey>_<minute>; upsert so concurrent events in one minute land on one row" },
+    { "name": "event", "type": "String", "required": true, "note": "recordCreated, stateChanged, recordAssigned, thresholdCrossed, commentAdded, ..." },
+    { "name": "channel", "type": "String", "required": true, "note": "dm | alerts | <channel key>" },
+    { "name": "recordType", "type": "String" },
+    { "name": "recordId", "type": "String" },
+    { "name": "recipientUserId", "type": "Relation(User)", "onDelete": "SET NULL" },
+    { "name": "recipientEmail", "type": "String" },
+    { "name": "actorUserId", "type": "String" },
+    { "name": "dedupeKey", "type": "String", "required": true, "note": "event:model:recordId:user:<id>" },
+    { "name": "burstCount", "type": "Int", "default": 1 },
+    { "name": "firstEventAt", "type": "DateTime" },
+    { "name": "lastEventAt", "type": "DateTime" },
+    { "name": "notBefore", "type": "DateTime" },
+    { "name": "status", "type": "String", "required": true, "note": "pending | sending | sent | retry | dead | expired | merged | superseded" },
+    { "name": "attempts", "type": "Int", "default": 0 },
+    { "name": "lastAttemptAt", "type": "DateTime" },
+    { "name": "nextAttemptAt", "type": "DateTime" },
+    { "name": "sentAt", "type": "DateTime" },
+    { "name": "httpStatus", "type": "Int" },
+    { "name": "error", "type": "String", "note": "URLs and sig= already stripped by the post flow" },
+    { "name": "card", "type": "JSON", "note": "the card spec, already redacted for recipients without access" },
+    { "name": "redacted", "type": "Boolean" },
+    { "name": "restricted", "type": "Boolean", "note": "the source record's restricted stamp, so row-level filtering applies to the send log" }
+  ],
+  "indices": [
+    ["status", "notBefore"],
+    ["dedupeKey"],
+    ["recordType", "recordId"],
+    ["recipientUserId", "createdAt"]
+  ]
+}

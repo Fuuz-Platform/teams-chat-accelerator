@@ -1,0 +1,15 @@
+{
+  "_readme": "Generic per-user notification preference (chapter 04, section 3.2). One row per user, written only for the caller by a preferences flow. If your app already has a per-user preferences model, add the channel field there instead of creating this one.",
+  "name": "UserNotificationPreference",
+  "collection": "userNotificationPreference",
+  "moduleId": "<owning module>",
+  "fields": [
+    { "name": "id", "type": "ID", "required": true, "note": "the user id" },
+    { "name": "userId", "type": "Relation(User)", "required": true, "unique": true, "onDelete": "CASCADE" },
+    { "name": "channel", "type": "String", "note": "teams | email | both | empty (= defaultChannel in teamsNotificationSettings)" },
+    { "name": "mutedEvents", "type": "JSON", "note": "optional list of event names the user does not want" },
+    { "name": "timeZone", "type": "String", "note": "IANA zone for times on cards and quiet hours, e.g. America/New_York" },
+    { "name": "quietStart", "type": "String", "note": "optional HH:mm" },
+    { "name": "quietEnd", "type": "String", "note": "optional HH:mm" }
+  ]
+}

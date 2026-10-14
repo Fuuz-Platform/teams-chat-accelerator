@@ -1,0 +1,54 @@
+{
+  "_readme": "ApplicationConfiguration row for Teams delivery settings (MES pattern). Assign it to the module that owns Teams delivery (MES: configuration). The webhook URL is NOT here: it lives only in the Connection. Defaults shown; normalise on read so a bad hand edit falls back to the default.",
+  "id": "notificationTeams",
+  "name": "Notification Teams Delivery",
+  "moduleId": "configuration",
+  "description": "How alerts reach Microsoft Teams: team and channel levels (per site), naming prefix, split size and provisioning state. Names are derived from equipment hierarchy codes, never typed.",
+  "configJson": {
+    "version": 1,
+    "enabled": true,
+    "team": "siteArea",
+    "channel": "unit",
+    "prefix": "Andon",
+    "maxChannelsPerTeam": 900,
+    "batch": 20,
+    "batchMinutes": 5,
+    "sites": {},
+    "splits": {},
+    "provision": null,
+    "updatedAt": "<ISO timestamp>",
+    "updatedBy": "seed",
+    "updatedByName": "Seed (defaults)",
+    "log": []
+  },
+  "configSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Notification Teams delivery",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": { "type": "integer" },
+      "enabled": { "type": "boolean", "description": "false: Teams recipients are skipped (logged); e-mail and SMS continue" },
+      "team": { "type": "string", "enum": ["siteArea", "site"] },
+      "channel": { "type": "string", "enum": ["unit", "workCenter", "area"] },
+      "prefix": { "type": "string", "maxLength": 30 },
+      "maxChannelsPerTeam": { "type": "integer", "minimum": 1, "maximum": 990 },
+      "batch": { "type": "integer", "minimum": 1, "maximum": 20 },
+      "batchMinutes": { "type": "integer", "minimum": 5 },
+      "sites": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "team": { "type": "string", "enum": ["siteArea", "site"] }, "channel": { "type": "string", "enum": ["unit", "workCenter", "area"] } }
+        }
+      },
+      "splits": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+      "provision": { "type": ["object", "null"] },
+      "updatedAt": { "type": "string" },
+      "updatedBy": { "type": "string" },
+      "updatedByName": { "type": "string" },
+      "log": { "type": "array" }
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "fallbackText": "Escalated: SEV2 ANDON - Material shortage",
+        "body": [
+          {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "width": "auto",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "Image",
+                    "url": "https://fuuz-news.b-cdn.net/brand/email/fuuz-logo-horizontal-on-midnight-320w.png",
+                    "width": "84px",
+                    "altText": "Fuuz"
+                  }
+                ]
+              },
+              {
+                "type": "Column",
+                "width": "stretch",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "MES - Andon escalated",
+                    "horizontalAlignment": "Right",
+                    "size": "Small",
+                    "isSubtle": true,
+                    "wrap": true,
+                    "color": "Warning"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "style": "warning",
+            "bleed": true,
+            "spacing": "Medium",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "Escalated: SEV2 ANDON - Material shortage",
+                "size": "Medium",
+                "weight": "Bolder",
+                "wrap": true,
+                "spacing": "Medium"
+              },
+              {
+                "type": "TextBlock",
+                "text": "<ANDON_CODE> at <WORK_UNIT_CODE>, open 30 min, not acknowledged",
+                "isSubtle": true,
+                "wrap": true,
+                "spacing": "Small"
+              }
+            ]
+          },
+          {
+            "type": "FactSet",
+            "spacing": "Medium",
+            "facts": [
+              {
+                "title": "Work unit",
+                "value": "<WORK_UNIT_CODE>"
+              },
+              {
+                "title": "Line",
+                "value": "<LINE_CODE>"
+              },
+              {
+                "title": "Area",
+                "value": "<AREA_CODE>"
+              },
+              {
+                "title": "Site",
+                "value": "<SITE_CODE>"
+              },
+              {
+                "title": "Category",
+                "value": "Equipment"
+              },
+              {
+                "title": "Severity",
+                "value": "High (2)"
+              },
+              {
+                "title": "Escalation",
+                "value": "Level 2 - area supervisor"
+              },
+              {
+                "title": "Raised at",
+                "value": "<LOCAL_TIME TZ>"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.OpenUrl",
+            "title": "Open Andon",
+            "url": "https://<MES_HOST>/andon/andonBoard?andon=<ANDON_CODE>&tenant=<TENANT>",
+            "style": "positive"
+          },
+          {
+            "type": "Action.OpenUrl",
+            "title": "Acknowledge",
+            "url": "https://<MES_HOST>/andon/andonBoard?andon=<ANDON_CODE>&ack=1&tenant=<TENANT>"
+          }
+        ]
+      }
+    }
+  ],
+  "fuuz": {
+    "target": "channel",
+    "recipient": null,
+    "teamName": "Andon - <SITE_CODE> - <AREA_CODE>",
+    "teamDescription": "Fuuz Andon alerts for <SITE_CODE> / <AREA_CODE>. Members are managed by your Teams administrator.",
+    "channelName": "<WORK_UNIT_CODE>"
+  }
+}

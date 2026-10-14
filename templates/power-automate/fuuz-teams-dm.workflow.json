@@ -1,0 +1,39 @@
+{
+  "_readme": [
+    "Fuuz Teams DM workflow (fixed target dm) in code-view form. Generic DM workflow, e.g. 'Fuuz - Direct messages'.",
+    "REVIEW TEMPLATE: build in the designer (chapter 02, section 2) and compare. Remove '_' keys before reuse.",
+    "The Flow bot must be available to each recipient without user action: chapter 06, section 5."
+  ],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "$connections": { "defaultValue": {}, "type": "Object" },
+      "$authentication": { "defaultValue": {}, "type": "SecureObject" }
+    },
+    "triggers": {
+      "manual": {
+        "_comment": "When a Teams webhook request is received. Who can trigger the flow = Anyone.",
+        "type": "Request",
+        "kind": "Http",
+        "inputs": { "triggerAuthenticationType": "All" }
+      }
+    },
+    "actions": {
+      "Post_card_DM": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostCardToConversation" },
+          "parameters": {
+            "poster": "Flow bot",
+            "location": "Chat with Flow bot",
+            "body/recipient": "@triggerBody()?['fuuz']?['recipient']",
+            "body/messageBody": "@string(triggerBody()?['attachments']?[0]?['content'])"
+          },
+          "authentication": "@parameters('$authentication')"
+        },
+        "runAfter": {}
+      }
+    }
+  }
+}

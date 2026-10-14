@@ -1,0 +1,112 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "fallbackText": "On hold: <RECORD_TYPE> <RECORD_CODE>",
+        "body": [
+          {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "width": "auto",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "Image",
+                    "url": "https://fuuz-news.b-cdn.net/brand/email/fuuz-logo-horizontal-on-midnight-320w.png",
+                    "width": "84px",
+                    "altText": "Fuuz"
+                  }
+                ]
+              },
+              {
+                "type": "Column",
+                "width": "stretch",
+                "verticalContentAlignment": "Center",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "Fuuz - Quality Alerts",
+                    "horizontalAlignment": "Right",
+                    "size": "Small",
+                    "isSubtle": true,
+                    "wrap": true,
+                    "color": "Default"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "style": "warning",
+            "bleed": true,
+            "spacing": "Medium",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "On hold: <RECORD_TYPE> <RECORD_CODE>",
+                "size": "Medium",
+                "weight": "Bolder",
+                "wrap": true,
+                "spacing": "Medium"
+              },
+              {
+                "type": "TextBlock",
+                "text": "<RECORD_TITLE>",
+                "isSubtle": true,
+                "wrap": true,
+                "spacing": "Small"
+              }
+            ]
+          },
+          {
+            "type": "FactSet",
+            "spacing": "Medium",
+            "facts": [
+              {
+                "title": "Status",
+                "value": "In progress -> On hold"
+              },
+              {
+                "title": "Changed by",
+                "value": "<PERSON_NAME>"
+              },
+              {
+                "title": "Changed at",
+                "value": "<LOCAL_TIME TZ>"
+              },
+              {
+                "title": "Reason",
+                "value": "<HOLD_REASON>"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.OpenUrl",
+            "title": "Open record",
+            "url": "https://<FUUZ_HOST>/<APP>/<ROUTE>?id=<RECORD_ID>&tenant=<TENANT>",
+            "style": "positive"
+          }
+        ]
+      }
+    }
+  ],
+  "fuuz": {
+    "target": "channel",
+    "recipient": null,
+    "teamName": "<TEAM_NAME>",
+    "teamDescription": null,
+    "channelName": "Quality Alerts",
+    "eventKey": "stateChanged:<MODEL>:<RECORD_ID>:channel:alerts"
+  }
+}

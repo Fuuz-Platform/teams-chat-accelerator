@@ -1,0 +1,39 @@
+{
+  "_readme": "The spec the shared renderer (teams-shared/cards.cjs TEAMS_CARD_FN) takes. The renderer turns it into the full message envelope; compare andon-raised-sev1-channel.json.",
+  "label": "MES - Andon raised",
+  "labelColor": "Default",
+  "style": "attention",
+  "headline": "SEV1 ANDON - Machine breakdown",
+  "subtitle": "<ANDON_CODE> at <WORK_UNIT_CODE>, <LINE_CODE>",
+  "facts": [
+    {
+      "title": "Work unit",
+      "value": "<WORK_UNIT_CODE>"
+    },
+    {
+      "title": "Severity",
+      "value": "Critical (1)"
+    }
+  ],
+  "excerpt": null,
+  "why": null,
+  "actions": [
+    {
+      "title": "Open Andon",
+      "url": "https://<MES_HOST>/andon/andonBoard?andon=<ANDON_CODE>&tenant=<TENANT>",
+      "style": "positive"
+    },
+    {
+      "title": "Acknowledge",
+      "url": "https://<MES_HOST>/andon/andonBoard?andon=<ANDON_CODE>&ack=1&tenant=<TENANT>"
+    }
+  ],
+  "fallbackText": null,
+  "fuuz": {
+    "target": "channel",
+    "recipient": null,
+    "teamName": "Andon - <SITE_CODE> - <AREA_CODE>",
+    "teamDescription": "Fuuz Andon alerts for <SITE_CODE> / <AREA_CODE>. Members are managed by your Teams administrator.",
+    "channelName": "<WORK_UNIT_CODE>"
+  }
+}
