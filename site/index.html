@@ -49,6 +49,7 @@
     <nav>
       <a href="#how">How it works</a>
       <a href="#cards">Cards</a>
+      <a href="#workflow">Workflow</a>
       <a href="#guide">Guide</a>
       <a href="#start">Quick start</a>
       <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator">GitHub</a>
@@ -172,6 +173,35 @@
     <p class="note-fictional">Rendered from the card templates in this repository with the Adaptive
       Cards renderer and a Teams-like host configuration. Plant, people and record values are
       fictional.</p>
+  </div>
+</section>
+
+<section id="workflow">
+  <div class="wrap">
+    <p class="sec-eyebrow">Inside the workflow</p>
+    <h2>The Router, Step By <span class="accent">Step</span></h2>
+    <p class="sec-lede">The tested router workflow in the Power Automate designer. A direct message
+      takes the short branch; a channel post finds or creates the team and channel first.</p>
+    <div class="shots">
+      <figure class="figure">
+        <img src="img/pa-router-top.png" alt="Power Automate designer: the webhook trigger, two variables, then a condition. True posts a card in a chat; False lists joined teams, filters by name, and when no team matches creates one, waits, and installs the Workflows app with a Microsoft Graph HTTP request." width="871" height="1372" loading="lazy">
+        <figcaption><strong>Find or create the team.</strong> <code>dm</code> posts straight away; otherwise the team is matched by exact name, or created and given the Workflows app.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/pa-router-bottom.png" alt="Power Automate designer, lower half: list channels, filter by name, create the channel when missing and wait, then a final condition that posts the card in the channel." width="871" height="1372" loading="lazy">
+        <figcaption><strong>Find or create the channel, then post.</strong> The waits give Teams time to finish provisioning before the first card lands.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/pa-graph-install.png" alt="The Send a Microsoft Graph HTTP request step: URI built with concat, method POST, and a body binding the Workflows app from the Teams app catalog." width="945" height="917" loading="lazy">
+        <figcaption><strong>No manual bot install.</strong> One Graph request adds the Workflows app to every team the workflow creates.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/pa-post-flow-bot.png" alt="The Post card in a chat or channel step: post as Flow bot, in a chat with Flow bot, recipient from the fuuz routing object, and the Adaptive Card from the request body." width="945" height="867" loading="lazy">
+        <figcaption><strong>Post as the Flow bot.</strong> Recipient and card come from the request Fuuz sent, so Teams notifies people normally.</figcaption>
+      </figure>
+    </div>
+    <p class="note-fictional">Captured from a working tenant. Account, environment and tenant details are
+      removed; the app id shown is Microsoft's public catalog id for Workflows.</p>
   </div>
 </section>
 
