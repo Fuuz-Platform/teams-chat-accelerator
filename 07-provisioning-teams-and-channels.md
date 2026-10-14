@@ -1,6 +1,6 @@
 # 07. Provisioning teams and channels
 
-Use this chapter when Fuuz posts to **channels derived from data** (the router workflow, `target = channel`). Reference implementation (Andon, tested): `fuuz/accelerators/isa95-pure-mes/screens/_shared/teamsTarget/teamsCore.mjs` and the "Sync Teams channels" action on the Notification Channels screen (Teams tab), sender flow `teamsProvisionTick`.
+Use this chapter when Fuuz posts to **channels derived from data** (the router workflow, `target = channel`). The tested Andon reference provisions channels from a "Sync Teams channels" action on its notification settings screen (section 4).
 
 ## 1. Names come from codes
 

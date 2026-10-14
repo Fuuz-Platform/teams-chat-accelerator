@@ -17,7 +17,7 @@ Template: [templates/power-automate/fuuz-teams-dm.workflow.json](../templates/po
 ## Step 2. Fuuz side: Connection and post flow
 
 1. Connection `teamsDmWebhook` (HTTP, URL, payload logging off).
-2. Post flow `teamsDmPost`, built with `fuuz/accelerators/teams-shared/post.cjs`.
+2. Post flow `teamsDmPost`, built with `teams-shared/post.cjs`.
 3. Test it alone with your own UPN in [templates/fuuz/test-request-body.json](../templates/fuuz/test-request-body.json).
 
 ## Step 3. Who may receive DMs

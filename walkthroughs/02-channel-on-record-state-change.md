@@ -18,7 +18,7 @@ Template: [templates/power-automate/fuuz-teams-fixed-channel.workflow.json](../t
 ## Step 2. Fuuz side: Connection and post flow
 
 1. Connection `teamsAlertsWebhook` (HTTP, URL pasted, payload logging off; chapter 03, section 1).
-2. Post flow `teamsAlertsPost`, built with `fuuz/accelerators/teams-shared/post.cjs` (`teamsPostFlow({ connectionName: 'teamsAlertsWebhook', flowName: 'teamsAlertsPost', lookup: 'name' })`).
+2. Post flow `teamsAlertsPost`, built with `teams-shared/post.cjs` (`teamsPostFlow({ connectionName: 'teamsAlertsWebhook', flowName: 'teamsAlertsPost', lookup: 'name' })`).
 3. Test the post flow alone with [templates/fuuz/test-request-body.json](../templates/fuuz/test-request-body.json) (target `channel`). Expect `{ status: 202 }` and the card in the channel.
 
 ## Step 3. Settings, queue and sender

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teams Chat — Fuuz Accelerator</title>
+<meta name="description" content="Post Adaptive Cards from any Fuuz event to Microsoft Teams channels and direct messages through Power Automate Workflows, with teams, channels and the bot provisioned automatically.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://accelerators.fuuz.com/teams-chat-accelerator/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://accelerators.fuuz.com/teams-chat-accelerator/">
+<meta property="og:site_name" content="Fuuz Accelerators">
+<meta property="og:title" content="Teams Chat — Fuuz Accelerator">
+<meta property="og:description" content="Any Fuuz event, posted to the right Teams channel or person as an Adaptive Card. No Microsoft credential in Fuuz, no manual bot install.">
+<meta property="og:image" content="https://accelerators.fuuz.com/teams-chat-accelerator/img/card-raised.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/appicon-violet.svg">
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* Card screenshots are narrow portrait images, so they sit in a gallery rather than one wide figure. */
+  .shots { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); align-items: start; }
+  .shots .figure { padding: 14px; margin: 0; }
+  .shots .figure img { min-width: 0; width: 100%; height: auto; }
+  .shots figcaption { font-size: 13.5px; color: var(--text-secondary); margin-top: 12px; line-height: 1.5; }
+  .shots figcaption strong { color: var(--fuuz-white); }
+  .note-fictional { font-size: 13.5px; color: var(--text-muted); margin-top: 18px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Teams Chat",
+  "url": "https://accelerators.fuuz.com/teams-chat-accelerator/",
+  "description": "Patterns, templates and walkthroughs for posting Adaptive Cards from Fuuz events to Microsoft Teams channels and direct messages through Power Automate Workflows.",
+  "codeRepository": "https://github.com/Fuuz-Platform/teams-chat-accelerator",
+  "programmingLanguage": ["JSON", "JSONata"],
+  "applicationCategory": "BusinessApplication",
+  "keywords": "Microsoft Teams, Power Automate, Workflows, Adaptive Cards, notifications, Andon, manufacturing, MES, Fuuz",
+  "author": { "@type": "Organization", "name": "Fuuz", "url": "https://fuuz.com" }
+}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="logo" href="../"><img src="assets/logo-horizontal-on-midnight.svg" alt="Fuuz"></a>
+    <span class="section">Accelerators</span>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#cards">Cards</a>
+      <a href="#guide">Guide</a>
+      <a href="#start">Quick start</a>
+      <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap hero">
+  <p class="eyebrow">Accelerator &middot; Microsoft Teams</p>
+  <h1>Every Fuuz Event, In The Right Teams <span class="accent">Chat</span></h1>
+  <p class="lede">
+    A Fuuz&reg; flow renders an Adaptive Card and posts it to a Power Automate workflow. The workflow
+    delivers it to a channel or to one person &mdash; creating the team and channel when they do not
+    exist yet, and installing the bot that posts into them, with no manual step for anyone.
+  </p>
+  <div class="ctas">
+    <a class="cta cta-primary" href="#start">Start here</a>
+    <a class="cta cta-secondary" href="https://github.com/Fuuz-Platform/teams-chat-accelerator">Read the guide</a>
+  </div>
+  <div class="chips">
+    <span class="chip">Channel posts</span>
+    <span class="chip">Direct messages</span>
+    <span class="chip">Adaptive Cards 1.4</span>
+    <span class="chip">Power Automate Workflows</span>
+    <span class="chip">Data-change driven</span>
+    <span class="chip">No manual bot install</span>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="callout">
+      <strong>Tested for Andon, built for any event.</strong> This pattern was built and tested end to
+      end in production for an Andon (production alert) scenario: alerts raised on equipment post to a
+      channel per work unit and as direct messages to named people. Your team can implement the same
+      approach for <strong>any type of event in the Fuuz platform</strong> &mdash; a model data change,
+      a flow step, a schedule, a threshold, an integration message. Anything not yet proven in
+      production is marked <strong>TO VERIFY</strong> in the guide; test it in your tenant before you
+      rely on it. Microsoft Teams and Power Automate behaviour, limits and licensing can change, so
+      validate them in your own tenant before go-live.
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <p class="sec-eyebrow">How it works</p>
+    <h2>Two Halves, One Secret <span class="accent">URL</span></h2>
+    <p class="sec-lede">Fuuz never holds a Microsoft credential. The only secret is the workflow's
+      trigger URL, and it lives in a Fuuz Connection.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>1. Something happens</h3>
+        <p>A record is inserted or changes state. A <code>dataChanges</code> trigger fires after the
+          commit and hands the flow the record <em>before</em> and <em>after</em>.</p>
+        <div class="meta">Fuuz &middot; event</div>
+      </div>
+      <div class="card">
+        <h3>2. A detector decides</h3>
+        <p>Is this worth a message, and to whom? Send directly from the event flow, or enqueue to a
+          queue that dedupes, honours per-person preferences and retries.</p>
+        <div class="meta">Fuuz &middot; rule</div>
+      </div>
+      <div class="card">
+        <h3>3. A card is rendered</h3>
+        <p>One renderer turns a small spec into an Adaptive Card with a severity colour, facts and
+          deep links back to the Fuuz screen &mdash; tenant always on the link.</p>
+        <div class="meta">Fuuz &middot; card</div>
+      </div>
+      <div class="card">
+        <h3>4. A quiet post flow sends it</h3>
+        <p>Reads the Connection and POSTs the card with a small <code>fuuz</code> routing object. The
+          URL is never logged; the workflow answers <code>202 Accepted</code>.</p>
+        <div class="meta">Fuuz &rarr; Microsoft 365</div>
+      </div>
+      <div class="card">
+        <h3>5. The workflow routes it</h3>
+        <p><code>dm</code> posts to one person. <code>channel</code> finds or creates the team and
+          channel by exact name. <code>ensure</code> provisions without posting.</p>
+        <div class="meta">Power Automate</div>
+      </div>
+      <div class="card">
+        <h3>6. The bot is installed for you</h3>
+        <p>A new team gets the Workflows app through a Microsoft Graph request inside the same
+          workflow, then the card posts as the Flow bot &mdash; so Teams notifies the channel.</p>
+        <div class="meta">Microsoft Teams</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cards">
+  <div class="wrap">
+    <p class="sec-eyebrow">What lands in Teams</p>
+    <h2>Cards People Act On Without <span class="accent">Opening Fuuz</span></h2>
+    <p class="sec-lede">Severity reads from the colour before a word is read. Every button opens the
+      exact Fuuz screen and record.</p>
+    <div class="shots">
+      <figure class="figure">
+        <img src="img/card-raised.png" alt="A Teams channel post from Workflows: a red-banded card reading SEV1 ANDON, Machine breakdown, with facts for work unit, line, area, site, severity and who raised it, and Open Andon and Acknowledge buttons." width="900" height="728" loading="lazy">
+        <figcaption><strong>Raised.</strong> A critical alert posts to the work unit's own channel.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/card-escalated.png" alt="An amber-banded escalation card: SEV2 Andon, material shortage, open 30 minutes and not acknowledged." width="900" height="699" loading="lazy">
+        <figcaption><strong>Escalated.</strong> Still open and unacknowledged after the threshold.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/card-resolved.png" alt="A green-banded resolution card with who resolved it, when, and the resolver's note." width="900" height="765" loading="lazy">
+        <figcaption><strong>Resolved.</strong> Closes the loop with the resolver's note.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/card-record-state.png" alt="An amber card in a Quality Alerts channel: a nonconformance moved from In progress to On hold, with who changed it and the reason." width="900" height="588" loading="lazy">
+        <figcaption><strong>Any record, any state.</strong> A nonconformance put on hold posts to a fixed Quality channel.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/card-assigned-dm.png" alt="A direct message from Workflows: a nonconformance was assigned to you, with due date, priority, status and an Open record button." width="900" height="578" loading="lazy">
+        <figcaption><strong>Direct message.</strong> The assignee hears about it, with a line saying why.</figcaption>
+      </figure>
+    </div>
+    <p class="note-fictional">Rendered from the card templates in this repository with the Adaptive
+      Cards renderer and a Teams-like host configuration. Plant, people and record values are
+      fictional.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-eyebrow">Choose a pattern</p>
+    <h2>Start From What You <span class="accent">Need</span></h2>
+    <p class="sec-lede">Three workflow shapes cover every case in the guide.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>You need</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td>One fixed channel for a whole function &mdash; Quality Alerts, Maintenance Alerts</td><td>The fixed-channel workflow. The team and channel exist already; the workflow only posts.</td></tr>
+          <tr><td>A message to a named person</td><td>The direct-message workflow (<code>dm</code>).</td></tr>
+          <tr><td>Channels derived from your data &mdash; one per work unit, line or site</td><td>The router workflow (<code>dm</code> / <code>channel</code> / <code>ensure</code>) with find-or-create, plus pre-provisioning before go-live.</td></tr>
+          <tr><td>Immediate alerts with recipients from a routing table</td><td>Direct send from the event flow &mdash; the tested Andon pattern.</td></tr>
+          <tr><td>Filtering, dedupe, per-person preferences or retries</td><td>Detector, then a notification queue, then a data-change-triggered sender.</td></tr>
+          <tr><td>Buttons that write back to Fuuz in place</td><td>Not available through Workflows webhooks. Open a Fuuz screen with <code>Action.OpenUrl</code>, or build a Teams bot.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="guide">
+  <div class="wrap">
+    <p class="sec-eyebrow">The guide</p>
+    <h2>Nine Chapters, Four <span class="accent">Walkthroughs</span></h2>
+    <p class="sec-lede">Every statement is marked VERIFIED, DOCUMENTED or TO VERIFY, so you know what
+      has run in production and what has not.</p>
+    <div class="resources">
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/01-concepts.md"><div class="name">01 &middot; Concepts</div><div class="desc">Workflows, the Flow bot, the webhook trigger, the payload contract and what a 202 means.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/02-setup-power-automate-workflows.md"><div class="name">02 &middot; Power Automate workflows</div><div class="desc">Click-by-click builds of the direct-message, fixed-channel and router workflows.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/03-fuuz-connection-and-flows.md"><div class="name">03 &middot; Connection and flows</div><div class="desc">The Fuuz Connection, the quiet post flow, the send step and deep links.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/04-patterns-data-change-driven.md"><div class="name">04 &middot; Event-driven patterns</div><div class="desc">Direct send, or detect, queue and send; dedupe, preferences, switches and pilots.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/05-adaptive-cards-styling.md"><div class="name">05 &middot; Adaptive Cards</div><div class="desc">Layout, severity colours, size limits, a restricted variant, light and dark testing.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/06-bots-and-app-installation.md"><div class="name">06 &middot; Bots and app install</div><div class="desc">Getting the Flow bot into teams, group chats and 1:1 chats with no manual steps.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/07-provisioning-teams-and-channels.md"><div class="name">07 &middot; Provisioning</div><div class="desc">Names from codes, Teams limits, pre-provisioning and avoiding twin teams.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/08-operations-limits-troubleshooting.md"><div class="name">08 &middot; Operations</div><div class="desc">Limits, throttling, run history, an error table and runbooks.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/09-security.md"><div class="name">09 &middot; Security</div><div class="desc">Secrets, logging, restricted content, ownership and least privilege.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/tree/main/walkthroughs"><div class="name">Walkthroughs</div><div class="desc">Andon to a work-unit channel, a channel on record state change, a DM to the assignee, and an end-to-end test.</div></a>
+      <a class="resource" href="https://github.com/Fuuz-Platform/teams-chat-accelerator/tree/main/templates"><div class="name">Templates</div><div class="desc">Workflow code views, the payload JSON Schema, card templates, settings and model examples.</div></a>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <p class="sec-eyebrow">Quick start</p>
+    <h2>A First Card In About An <span class="accent">Hour</span></h2>
+    <p class="sec-lede">You need a Microsoft 365 tenant with Teams and Power Automate, and a Fuuz
+      tenant you can build in. VS Code with the Fuuz extension is the recommended way to build the
+      Fuuz side.</p>
+    <ol class="steps">
+      <li>
+        <h3>Learn the vocabulary</h3>
+        <p>Read <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/01-concepts.md">01 Concepts</a> &mdash; about ten minutes.</p>
+      </li>
+      <li>
+        <h3>Build two workflows</h3>
+        <p>The direct-message workflow and one fixed-channel workflow, following
+          <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/02-setup-power-automate-workflows.md">chapter 02</a>.
+          Copy each trigger URL &mdash; it is a secret.</p>
+      </li>
+      <li>
+        <h3>Connect Fuuz</h3>
+        <p>Create a Connection, paste the URL into it in the Fuuz UI, and build the post flow
+          (<a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/03-fuuz-connection-and-flows.md">chapter 03</a>).</p>
+      </li>
+      <li>
+        <h3>Send the test card</h3>
+        <p>Post <code>templates/fuuz/test-request-body.json</code> and confirm it lands, following
+          <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/walkthroughs/04-end-to-end-test.md">walkthrough 04</a>.</p>
+<pre><span class="c"># the test body, with a placeholder recipient</span>
+git clone https://github.com/Fuuz-Platform/teams-chat-accelerator
+cat teams-chat-accelerator/templates/fuuz/test-request-body.json</pre>
+      </li>
+      <li>
+        <h3>Wire your first event</h3>
+        <p>Add a detector on the model you care about
+          (<a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/04-patterns-data-change-driven.md">chapter 04</a>,
+          <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator/blob/main/walkthroughs/02-channel-on-record-state-change.md">walkthrough 02</a>).</p>
+      </li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>A Fuuz accelerator.</span>
+    <nav>
+      <a href="../">All accelerators</a>
+      <a href="https://academy.fuuz.com">Academy</a>
+      <a href="https://support.fuuz.com">Support</a>
+      <a href="https://status.fuuz.app">Status</a>
+      <a href="https://github.com/Fuuz-Platform/teams-chat-accelerator">Source</a>
+      <a href="https://fuuz.com">fuuz.com</a>
+    </nav>
+    <p class="terms">Nothing published here carries a <strong>service level agreement</strong>. An accelerator or a beta becomes a supported deliverable only once it has been implemented by a Fuuz services professional or an approved Fuuz partner.</p>
+  </div>
+</footer>
+
+</body>
+</html>

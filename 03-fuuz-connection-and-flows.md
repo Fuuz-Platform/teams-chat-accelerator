@@ -3,7 +3,7 @@
 **Who does this:** the Fuuz app builder (flows) and a Fuuz administrator (pasting the URL).
 **Result:** a Connection that holds the workflow URL, a quiet post flow, and a send step that renders and posts a card.
 
-Reference implementation: `fuuz/accelerators/teams-shared/` (`connection.cjs`, `post.cjs`, `cards.cjs`, `send.cjs`, `links.cjs`, `nodeSchema.cjs`). Each Fuuz app **packages** these at build time (function text embedded in nodes, JSONata in transforms). Apps never call each other at runtime, and one tenant never depends on another.
+The reference implementation keeps this logic in one shared helper set, `teams-shared/` (`connection.cjs`, `post.cjs`, `cards.cjs`, `send.cjs`, `links.cjs`, `nodeSchema.cjs`); the node shapes it produces are in [templates/fuuz/](templates/fuuz/). Each Fuuz app **packages** these at build time (function text embedded in nodes, JSONata in transforms). Apps never call each other at runtime, and one tenant never depends on another.
 
 ---
 

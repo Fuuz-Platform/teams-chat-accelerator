@@ -1,7 +1,7 @@
 # Integrating Fuuz with Microsoft Teams
 
 **Accelerator:** channel posts and direct messages from Fuuz to Microsoft Teams
-**Repository:** [Fuuz-Platform/teams-chat-accelerator](https://github.com/Fuuz-Platform/teams-chat-accelerator)
+**Site:** https://accelerators.fuuz.com/teams-chat-accelerator/
 **Audience:** Fuuz partners and customer integrators who build on Fuuz and own (or work with whoever owns) the customer's Microsoft 365 tenant.
 
 > **Scope and disclaimer**
@@ -104,9 +104,3 @@ Build Fuuz flows, screens and models with **VS Code and the Fuuz extension**. Th
 - Microsoft Graph app installation: [in a team](https://learn.microsoft.com/en-us/graph/api/team-post-installedapps), [in a chat](https://learn.microsoft.com/en-us/graph/api/chat-post-installedapps), [for a user](https://learn.microsoft.com/en-us/graph/api/userteamwork-post-installedapps)
 - [App setup policies](https://learn.microsoft.com/en-us/microsoftteams/teams-app-setup-policies) and [installing apps for users](https://learn.microsoft.com/en-us/microsoftteams/install-teams-apps)
 
-## Reference implementation code (Fuuz repo)
-
-| Piece | Location |
-|---|---|
-| Shared card, post, send, link and Connection code | `fuuz/accelerators/teams-shared/` |
-| Andon to Teams (tested reference) | `fuuz/accelerators/isa95-pure-mes/screens/notificationChannels/` (`teamsAndonPost`, `teamsProvisionTick`, `notificationTeams` settings row, Teams tab) and `fuuz/accelerators/isa95-pure-mes/screens/_shared/teamsTarget/teamsCore.mjs` |

@@ -3,7 +3,7 @@
 > **Scope and disclaimer.** This pattern was built and tested end to end in production for an **Andon (production alert)** scenario; this walkthrough is that reference implementation. Your team can implement the same approach for any type of event in the Fuuz platform (any model data change, a flow or workflow step, a schedule, a threshold, and so on). Steps not proven in production are marked **TO VERIFY**. Microsoft Teams and Power Automate behaviour, limits and licensing can change; validate them in your own tenant.
 
 **Goal:** when an Andon is raised, escalated or resolved on a work unit, a card appears in that work unit's channel, in the team for its site and area. Selected people also get a DM.
-**Reference:** the tested Andon implementation in the Fuuz MES. Code: `fuuz/accelerators/isa95-pure-mes/screens/notificationChannels/` and `fuuz/accelerators/teams-shared/`. Flows: `andonAlertNotify`, `resolveAndonRecipients`, `notificationChannelSend`, `teamsAndonPost`, `teamsProvisionTick`.
+**Reference:** the tested Andon implementation. Flows: `andonAlertNotify`, `resolveAndonRecipients`, `notificationChannelSend`, `teamsAndonPost`, `teamsProvisionTick`.
 **Time:** 1 to 2 hours, plus Teams membership work by the customer.
 
 ## Prerequisites
